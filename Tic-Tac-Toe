@@ -1,0 +1,243 @@
+from random import choice
+
+print("Welcome to the game of Tic-Tac-Toe!\nYour choices will be marked as O in the board, computer moves "
+      "will be marked as X.")
+
+print(f"Numbers assigned to each grid is as shown below:\n"
+                  f" 7 ! 8 ! 9 \n-----------\n " \
+                    f"4 ! 5 ! 6 \n-----------\n " \
+                    f"1 ! 2 ! 3 ")
+
+def game_starter():
+
+    # Selection of who will start first and validating the input.
+
+    while True:
+        user_input = input("Enter 1 to start first or 2 for computer to start first.\n")
+
+        if user_input == "1":
+            print("First move is yours.")
+            print("Current board looks as it is shown below.")
+            print(f"   !   !   \n-----------\n " \
+                  f"  !   !   \n-----------\n " \
+                  f"  !   !   ")
+
+            tic_tac_toe(True)
+
+        elif user_input == "2":
+
+            tic_tac_toe(False)
+        else:
+            print("You have entered an invalid input!")
+
+
+def tic_tac_toe(turn):
+
+    # Variables needed to maintain the game.
+
+    current_turn = turn
+    board_positions = {1:" ",2:" ",3:" ",4:" ",5:" ",6:" ",7:" ",8:" ",9:" "}
+    possible_moves = list(range(1,10))
+    win_positions = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
+
+    # Loop for a continuous game with alternating turn between player and computer.
+
+    while True:
+
+        # Checking for win, loss and draw.
+
+        check_win(board_positions,win_positions,possible_moves)
+
+        # Player turn. Getting input, validating it and then updating game board.
+
+        if current_turn:
+
+            while True:
+
+                user_move = input("Enter the number corresponding to your selected grid.(1 to 9)\n")
+
+                try:
+                    user_move = int(user_move)
+
+                    if user_move in possible_moves:
+
+                        board_positions[user_move] = "O"
+                        possible_moves.remove(user_move)
+                        current_turn = not current_turn
+                        break
+
+                    else:
+                        print("You have entered an invalid input!")
+                        continue
+
+                except:
+                    print("You have entered an invalid input!")
+                    continue
+
+            continue
+
+        # Computer turn. Getting the selected move and updating the game board.
+
+        else:
+
+            comp_move = computer_ai(board_positions,win_positions,possible_moves)
+
+            board_positions[comp_move] = "X"
+            possible_moves.remove(comp_move)
+            current_turn = not current_turn
+            print("Computer has made its move.")
+
+        print("Game board looks as it is shown below.")
+        print(f" {board_positions[7]} ! {board_positions[8]} ! {board_positions[9]} \n-----------\n " \
+              f"{board_positions[4]} ! {board_positions[5]} ! {board_positions[6]} \n-----------\n " \
+              f"{board_positions[1]} ! {board_positions[2]} ! {board_positions[3]} ")
+
+def check_win(board,win_conditions,possible_moves):
+
+    # Checking for draw.
+
+    if len(possible_moves) == 0:
+
+        print("This game is a draw.")
+        new_game()
+
+    # Check for win and loss.
+
+    for positions in win_conditions:
+
+        player_win = 0
+        comp_win = 0
+
+        for num in positions:
+
+            if board[num] == "O":
+
+                player_win += 1
+
+            elif board[num] == "X":
+
+                comp_win += 1
+
+        if player_win == 3:
+
+            print("Congratulations! You won against the computer.")
+            new_game()
+
+        elif comp_win == 3:
+
+            print("You have lost against the computer.")
+            new_game()
+
+        else:
+
+            player_win = 0
+            comp_win = 0
+
+def new_game():
+
+    # Starts a new game or exits the program.
+
+    while True:
+
+        user_input = input("Please enter 'next' to continue with a new game or 'exit' to quit the game.\n")
+
+        if user_input == "next":
+
+            game_starter()
+
+        elif user_input == "exit":
+
+            quit()
+
+        else:
+            print("You have entered an invalit input.")
+
+def computer_ai(board,win_conditions,possible_moves):
+
+    # If computer doesn't have a move to finish and win the game,
+    # it will collect desirable moves to select its move from
+
+    desirable_moves = []
+
+    # For loop to find if there is a move computer can make to win the game.
+
+    for position in win_conditions:
+
+        count_o = 0
+        count_x = 0
+        empty_positions = []
+
+        for num in position:
+
+            if board[num] == "O":
+
+                count_o += 1
+
+            elif board[num] == "X":
+
+                count_x += 1
+
+            else:
+                empty_positions.append(num)
+
+        if count_x == 2 and count_o == 0:
+
+            return choice(empty_positions)
+
+        count_o = 0
+        count_x = 0
+        empty_positions = []
+
+    # Another for loop to find the best possible moves.
+
+    for position in win_conditions:
+
+        count_o = 0
+        count_x = 0
+        empty_positions = []
+
+        for num in position:
+
+            if board[num] == "O":
+
+                count_o += 1
+
+            elif board[num] == "X":
+
+                count_x += 1
+
+            else:
+                empty_positions.append(num)
+
+        if count_o == 2 and count_x == 0:
+
+            # To prevent player from winning the game within the next turn,
+            # computer makes a preventive move
+
+            return choice(empty_positions)
+
+        elif count_x == 1 and count_o == 0:
+
+            # Moves the computer can make that can lead to a possible win.
+
+            desirable_moves.append(empty_positions[0])
+            desirable_moves.append(empty_positions[1])
+
+        count_o = 0
+        count_x = 0
+        empty_positions = []
+
+    if len(desirable_moves) != 0:
+
+        # Computer randomly choose one of the desirable moves.
+
+        return choice(desirable_moves)
+
+    else:
+
+        # If there is no desirable move, computer makes a random move.
+        # Especially for when computer makes the first move and the last move that would lead to a draw.
+
+        return choice(possible_moves)
+
+game_starter()
